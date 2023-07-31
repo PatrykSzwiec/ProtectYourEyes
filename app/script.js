@@ -7,58 +7,74 @@ class App extends React.Component {
 
     this.state = {
       status: 'off',
+      prevStatus: null,
       time: 0,
       timer: null,
     };
   }
 
-   // Helper method to format time as mm:ss
-   formatTime = (seconds) => {
+  // Helper method to format time as mm:ss
+  formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const formattedMinutes = String(minutes).padStart(2, '0');
     const formattedSeconds = String(seconds % 60).padStart(2, '0');
-    return `${formattedMinutes}:${formattedSeconds}`;
+  return `${formattedMinutes}:${formattedSeconds}`;
   };
 
   startWorkTimer = () => {
-    this.setState({
-      time: 1200, // 20 minutes
-      status: 'work',
-    }, () => {
-      this.startTimer();
-    });
+    this.setState(
+      (prevState) => ({
+        time: 12, // 20 minutes
+        status: 'work',
+        prevStatus: prevState.status, // Save the previous status
+      }),
+      () => {
+        this.startTimer();
+        if (this.state.prevStatus === 'rest') {
+          this.playBell(); // Play the bell sound when switching to 'rest' from 'work'
+        }
+      }
+    );
   };
 
   startRestTimer = () => {
-    this.setState({
-      time: 20, // 20 seconds
-      status: 'rest',
-    }, () => {
-      this.startTimer();
-    });
+    this.setState(
+      (prevState) => ({
+        time: 2, // 20 seconds
+        status: 'rest',
+        prevStatus: prevState.status, // Save the previous status
+      }),
+      () => {
+        this.startTimer();
+        if (this.state.prevStatus === 'work') {
+          this.playBell(); // Play the bell sound when switching to 'rest' from 'work'
+        }
+      }
+    );
   };
 
   startTimer = () => {
     const { status } = this.state;
-
     clearInterval(this.state.timer); // Clear the previous timer interval
 
-    this.setState({
-      timer: setInterval(() => {
-        this.setState((prevState) => ({
-          time: prevState.time - 1,
-        }));
-      }, 1000), // Update time every 1 second (1000 ms)
-    });
+    if (status !== 'off') {
+      this.setState({
+        timer: setInterval(() => {
+          this.setState((prevState) => ({
+            time: prevState.time - 1,
+          }));
+        }, 1000), // Update time every 1 second (1000 ms)
+      });
 
-    if (status === 'work') {
-      setTimeout(() => {
-        this.startRestTimer();
-      }, 1200000); // 20 minutes
-    } else if (status === 'rest') {
-      setTimeout(() => {
-        this.startWorkTimer();
-      }, 200000); // 20 seconds
+      if (status === 'work') {
+        setTimeout(() => {
+          this.startRestTimer();
+        }, 12000); // 20 minutes
+      } else if (status === 'rest') {
+        setTimeout(() => {
+          this.startWorkTimer();
+        }, 2000); // 20 seconds
+      }
     }
   };
 
@@ -68,6 +84,7 @@ class App extends React.Component {
       status: 'off',
       time: 0,
       timer: null,
+      prevStatus: null,
     });
   };
 
@@ -82,6 +99,11 @@ class App extends React.Component {
 
   closeApp(){
     window.close();
+  }
+
+  playBell(){
+    const bell = new Audio('./sounds/bell.wav');
+    bell.play();
   }
 
 
