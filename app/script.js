@@ -24,7 +24,7 @@ class App extends React.Component {
   startWorkTimer = () => {
     this.setState(
       (prevState) => ({
-        time: 12, // 20 minutes
+        time: 1200, // 20 minutes
         status: 'work',
         prevStatus: prevState.status, // Save the previous status
       }),
@@ -40,7 +40,7 @@ class App extends React.Component {
   startRestTimer = () => {
     this.setState(
       (prevState) => ({
-        time: 2, // 20 seconds
+        time: 20, // 20 seconds
         status: 'rest',
         prevStatus: prevState.status, // Save the previous status
       }),
@@ -56,6 +56,8 @@ class App extends React.Component {
   startTimer = () => {
     const { status } = this.state;
     clearInterval(this.state.timer); // Clear the previous timer interval
+    clearTimeout(this.workTimeout); // Clear the work timer timeout
+    clearTimeout(this.restTimeout);
 
     if (status !== 'off') {
       this.setState({
@@ -67,19 +69,25 @@ class App extends React.Component {
       });
 
       if (status === 'work') {
-        setTimeout(() => {
+        this.workTimeout = setTimeout(() => {
           this.startRestTimer();
-        }, 12000); // 20 minutes
+        }, 1200000); // 20 minutes
       } else if (status === 'rest') {
-        setTimeout(() => {
+        this.restTimeout = setTimeout(() => {
           this.startWorkTimer();
-        }, 2000); // 20 seconds
+        }, 200000); // 20 seconds
       }
     }
   };
 
+  clearRestTimer = () => {
+    clearTimeout(this.restTimeout);
+  };
+
   stopTimer = () => {
     clearInterval(this.state.timer); // Clear the timer interval
+    clearTimeout(this.workTimeout); // Clear the work timer timeout
+    clearTimeout(this.restTimeout); // Clear the rest timer timeout
     this.setState({
       status: 'off',
       time: 0,
@@ -105,7 +113,6 @@ class App extends React.Component {
     const bell = new Audio('./sounds/bell.wav');
     bell.play();
   }
-
 
   render() {
     const { status, time } = this.state;
