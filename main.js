@@ -9,15 +9,13 @@ function main() {
     webPreferences: {
       nodeIntegration: true
     },
-    width: 800,
-    height: 600,
+    width: 520,
+    height: 650,
+    frame:false,
   })
 
   // load app/index.html as the window content
   mainWindow.loadFile(path.join('app', 'index.html'));
-
-  // Open DevTools 
-  mainWindow.webContents.openDevTools();
 }
 
 app.on('ready', main);
